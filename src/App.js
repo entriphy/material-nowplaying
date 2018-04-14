@@ -10,41 +10,8 @@ import PauseIcon from "@material-ui/icons/Pause"
 import SkipNextIcon from '@material-ui/icons/SkipNext';
 import {LinearProgress} from "material-ui/Progress"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-
-const BrowserWebSocket = require("browser-websocket");
-let ws = new BrowserWebSocket("ws://localhost:5672");
-let data, channel, payload, _artist, _title, _albumArt, _completed = 0, _playing = true;
-
-ws.on("open", () => {console.log("WebSocket")})
-ws.on("error", (err) => { console.log(err) });
-ws.on("close", (event) => { console.log(event) });
-ws.on("message", (event) => {
-  data = JSON.parse(event.data)
-  if (data.channel === "playState" || data.channel === "track" || data.channel === "time") {
-    channel = data.channel;
-    payload = data.payload;
-    switch (channel) {
-      case "playState":
-        if (payload !== _playing) payload = _playing;
-        break;
-      case "track":
-        console.log(payload.title, payload.artist, payload.albumArt)
-        if (payload.title === _title && payload.artist === _artist && payload.albumArt === _albumArt) return;
-        _title = payload.title;
-        if (_title.length > 24) _title = _title.substring(0, 21) + "...";
-        _artist = payload.artist;
-        _albumArt = payload.albumArt;
-        break;
-      case "time":
-        // if (payload.current < 1000 || payload.total < 1000) return;
-        if ((payload.current > _completed/100 * payload.total + 1000) || (payload.current/payload.total < _completed/100)) {
-          _completed = (payload.current / payload.total)*100
-        }
-        break;
-      default:
-        break;
-    }
-}})
+const config = require("./config");
+const player = require("./players/" + config.player);
 
 const colorTheme = createMuiTheme({
   palette: {
@@ -88,36 +55,36 @@ const styles = theme => ({
 class MediaControlCard extends React.Component {
   constructor(props) {
       super(props);
-      
       this.state = {
         songTitle: "[Song] Loading...",
         songArtist: "[Artist] Loading...",
-        albumArt: "https://i.pinimg.com/originals/84/94/17/8494171e26ec282b89b07e64defcf4e0.png",
+        albumArt: " ",
         completed: 0,
         playing: true
       }
    }
 
     getSongInfo = () => {
-      if (_title !== this.state.songTitle || _artist !== this.state.songArtist) {
-        this.setState({songTitle: _title, songArtist: _artist});
+      if (player.title !== this.state.songTitle || player.artist !== this.state.songArtist) {
+        this.setState({songTitle: player.title, songArtist: player.artist});
       }
-      if (_albumArt !== this.state.albumArt) {
-        this.setState({albumArt: _albumArt});
+      if (player.albumArt !== this.state.albumArt) {
+        this.setState({albumArt: player.albumArt});
       }
-      if (_completed !== this.state.completed) {
-        this.setState({completed: _completed});
+      if (player.completed !== this.state.completed) {
+        this.setState({completed: player.completed});
       }
-      if (_playing !== this.state.playing) {
-        this.setState({playing: _playing});
+      if (player.playing !== this.state.playing) {
+        this.setState({playing: player.playing});
       }
     }
 
 
-      
+    componentDidMount = () => {
+      setInterval(() => { this.getSongInfo(); }, 500)
+    }
 
     render = () => {
-      setInterval(this.getSongInfo, 500);
       const {classes, theme} = this.props;
 
       return(
