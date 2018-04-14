@@ -27,9 +27,11 @@ const {
   prepareUrls,
 } = require('react-dev-utils/WebpackDevServerUtils');
 const openBrowser = require('react-dev-utils/openBrowser');
+const WebSocket = require("ws");
 const paths = require('../config/paths');
 const config = require('../config/webpack.config.dev');
 const createDevServerConfig = require('../config/webpackDevServer.config');
+const overlayConfig = require("../src/config");
 
 const useYarn = fs.existsSync(paths.yarnLockFile);
 const isInteractive = process.stdout.isTTY;
@@ -56,6 +58,31 @@ if (process.env.HOST) {
   );
   console.log(`Learn more here: ${chalk.yellow('http://bit.ly/2mwWSwH')}`);
   console.log();
+}
+
+if (overlayConfig.player !== "gpmdp") {
+  console.log("Starting WebSocket server...")
+  const wss = new WebSocket.Server({port: 5673});
+  const handler = require("./" + overlayConfig.player + "Handler").handler;
+  wss.on("connection", (ws) => {
+    console.log("Client connected to WebSocket server!")
+    handler.on("play", () => {
+      ws.send(JSON.stringify({channel: "playState", payload: true}));
+    });
+    handler.on("pause", () => {
+      ws.send(JSON.stringify({channel: "playState", payload: false}));
+    });
+    handler.on("track", (track) => {
+      ws.send(JSON.stringify({
+        channel: "track",
+        payload: {
+          title: track.track_resource.name,
+          artist: track.artist_resource.name,
+          albumArt: track.albumArt
+        }
+      }))
+    });
+  })
 }
 
 // We attempt to use the default port but if it is busy, we offer the user to
@@ -89,7 +116,7 @@ choosePort(HOST, DEFAULT_PORT)
         clearConsole();
       }
       console.log(chalk.cyan('Starting the development server...\n'));
-      openBrowser(urls.localUrlForBrowser);
+      // openBrowser(urls.localUrlForBrowser);
     });
 
     ['SIGINT', 'SIGTERM'].forEach(function(sig) {
