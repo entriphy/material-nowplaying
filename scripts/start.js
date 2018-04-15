@@ -92,6 +92,16 @@ if (overlayConfig.player !== "gpmdp") {
         }
       }))
     });
+    handler.on("time", (time) => {
+      if (ws.readyState !== 1) return;
+      ws.send(JSON.stringify({
+        channel: "time",
+        payload: {
+          current: time.currentTime,
+          total: time.totalTime
+        }
+      }))
+    })
   })
 }
 

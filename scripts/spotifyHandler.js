@@ -36,12 +36,20 @@ helper.player.on("ready", () => {
         eventEmitter.emit("pause");
     });
     helper.player.on("track-will-change", (track) => {
-        status = helper.status;
         getAlbumCover(track.album_resource.uri, (albumArt) => {
             track.albumArt = albumArt;
+            status = helper.status;
             eventEmitter.emit("track", track);
         })
     })
+
+    setInterval(() => {
+        let time = {
+            currentTime: helper.status.playing_position * 1000,
+            totalTime: helper.status.track.length * 1000
+        }
+        eventEmitter.emit("time", time);
+    }, 100)
 })
 
 module.exports.handler = eventEmitter;

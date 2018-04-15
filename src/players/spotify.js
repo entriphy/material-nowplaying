@@ -22,7 +22,6 @@ ws.on("message", (event) => {
         module.exports.albumArt = payload.albumArt;
         break;
       case "time":
-        // if (payload.current < 1000 || payload.total < 1000) return;
         if ((payload.current > module.exports.completed/100 * payload.total + 1000) || (payload.current/payload.total < module.exports.completed/100)) {
           module.exports.completed = (payload.current / payload.total)*100
         }
