@@ -63,16 +63,26 @@ if (process.env.HOST) {
 if (overlayConfig.player !== "gpmdp") {
   console.log("Starting WebSocket server...")
   const wss = new WebSocket.Server({port: 5673});
+  const emitStatus = require("./" + overlayConfig.player + "Handler").emitStatus;
   const handler = require("./" + overlayConfig.player + "Handler").handler;
   wss.on("connection", (ws) => {
     console.log("Client connected to WebSocket server!")
+    ws.on("message", (data) => {
+      if (data === "status") {
+        emitStatus();
+      }
+    });
+
     handler.on("play", () => {
+      if (ws.readyState !== 1) return;
       ws.send(JSON.stringify({channel: "playState", payload: true}));
     });
     handler.on("pause", () => {
+      if (ws.readyState !== 1) return;
       ws.send(JSON.stringify({channel: "playState", payload: false}));
     });
     handler.on("track", (track) => {
+      if (ws.readyState !== 1) return;
       ws.send(JSON.stringify({
         channel: "track",
         payload: {

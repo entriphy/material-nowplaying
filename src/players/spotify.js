@@ -2,7 +2,7 @@ const BrowserWebSocket = require("browser-websocket");
 let ws = new BrowserWebSocket("ws://localhost:5673");
 let data, channel, payload;
 
-ws.on("open", () => {console.log("[Spotify] WebSocket connected successfully!")})
+ws.on("open", () => {console.log("[Spotify] WebSocket connected successfully!"); ws.emit("status")  })
 ws.on("error", (err) => { console.log(err) });
 ws.on("close", (event) => { console.log(event) });
 ws.on("message", (event) => {
