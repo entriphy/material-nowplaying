@@ -24,6 +24,7 @@ const colorTheme = createMuiTheme({
 const styles = theme => ({
   card: {
     display: 'inline-flex',
+    width: 480
   },
   details: {
     display: 'flex',
@@ -56,8 +57,8 @@ class MediaControlCard extends React.Component {
   constructor(props) {
       super(props);
       this.state = {
-        songTitle: "[Song] Loading...",
-        songArtist: "[Artist] Loading...",
+        songTitle: "Connecting...",
+        songArtist: " ",
         albumArt: " ",
         completed: 0,
         playing: true
@@ -81,6 +82,8 @@ class MediaControlCard extends React.Component {
 
 
     componentDidMount = () => {
+      this.setState({songTitle: player.title, songArtist: player.artist});
+      this.setState({albumArt: player.albumArt});
       setInterval(() => { this.getSongInfo(); }, 500)
     }
 

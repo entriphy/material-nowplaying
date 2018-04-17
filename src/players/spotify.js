@@ -36,8 +36,8 @@ window.onbeforeunload = (e) => {
 };
 
 module.exports = {
-  title: "Song",
-  artist: "Artist",
+  title: "Connecting to Spotify...",
+  artist: " ",
   albumArt: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2000px-Spotify_logo_without_text.svg.png",
   completed: 0,
   playing: true

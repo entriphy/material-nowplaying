@@ -6,7 +6,7 @@ const request = require("request");
 let status;
 
 helper.player.on("error", err => {
-    console.log(err);
+    console.error(err);
 })
 
 function getAlbumCover(id, cb) {
@@ -19,6 +19,20 @@ function getAlbumCover(id, cb) {
 };
 
 function _emitStatus() {
+    if (status === undefined || status.track.album_resource === undefined) {
+        status = {
+            track: {
+                track_resource: {
+                    name: "Not connected"
+                },
+                artist_resource: {
+                    name: "Please make sure SpotifyWebPlayer is running."
+                },
+                albumArt: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2000px-Spotify_logo_without_text.svg.png"
+            }
+        }
+        return eventEmitter.emit("track", status.track);
+    }
     status.playing ? eventEmitter.emit("play") : eventEmitter.emit("pause");
     getAlbumCover(status.track.album_resource.uri, (albumArt) => {
         status.track.albumArt = albumArt;

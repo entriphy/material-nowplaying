@@ -61,6 +61,7 @@ if (process.env.HOST) {
 }
 
 if (overlayConfig.player !== "gpmdp") {
+  if (overlayConfig.player !== "spotify") throw("The player you specified is either invalid or currently unsupported. Please look at src/config.json.")
   console.log("Starting WebSocket server...")
   const wss = new WebSocket.Server({port: 5673});
   const emitStatus = require("./" + overlayConfig.player + "Handler").emitStatus;
