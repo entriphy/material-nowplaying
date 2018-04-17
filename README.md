@@ -1,6 +1,8 @@
 # Material Now Playing
 Stream overlay for displaying the current song
 
+![material-nowplaying img](https://github.com/evilarceus/material-nowplaying/raw/master/public/overlay.png)
+
 ## Usage
 ### To start:
 * If you haven't already, check the "Enable JSON API" checkbox under Desktop Settings > General in GPMDP (if that's the player you're using)
